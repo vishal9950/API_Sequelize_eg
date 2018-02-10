@@ -1,4 +1,5 @@
 const Hapi = require('hapi');
+const Routes = require('./routes');
 
 const server = new Hapi.Server();
 
@@ -7,15 +8,7 @@ server.connection({
   host: 'localhost',
 });
 
-const handler = (response, reply) => {
-  reply('Working!');
-};
-
-server.route({
-  path: '/',
-  method: 'GET',
-  handler,
-});
+server.route(Routes);
 
 if (!module.parent) {
   server.start((err) => {

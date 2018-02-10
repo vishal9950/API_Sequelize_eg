@@ -7,5 +7,12 @@ describe('Test server: ', () => {
       done();
     });
   });
+
+  test('Should return the result \'Working!\': ', (done) => {
+    Server.inject('/', (response) => {
+      expect(response.result).toBe('Working!');
+      done();
+    });
+  });
 });
 
