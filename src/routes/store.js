@@ -1,4 +1,5 @@
 const rp = require('request-promise');
+const Models = require('../../models');
 
 const getHTTPReq = (url) => {
   const promise = rp(url);
@@ -9,7 +10,7 @@ const getAllBooksWithRatings = (allBooks) => {
   const promiseArray = [];
   for (let i = 0; i < allBooks.length; i += 1) {
     const getRatingsAPI = 'https://5gj1qvkc5h.execute-api.us-east-1.amazonaws.com/dev/findBookById/';
-    const promise = getHTTPReq(`${getRatingsAPI}${allBooks[i].id}`);
+    const promise = getHTTPReq(`${getRatingsAPI}${allBooks[i].bookID}`);
     promiseArray.push(promise);
   }
   return Promise.all(promiseArray).then((allRatings) => {
@@ -26,15 +27,19 @@ const handler = (request, reply) => {
   getHTTPReq(getBooksAPI).then((value) => {
     const allBooks = JSON.parse(value).books;
     // const promiseArray = getRatings(allBooks);
-    const allBooksWithRatingsPromise = getAllBooksWithRatings(allBooks);
-    allBooksWithRatingsPromise.then((allBooksWithRatings) => {
-      const allBooksWRatingsGrpdByAuthor = allBooksWithRatings.reduce((accumulator, book) => {
-        const tempAcc = accumulator;
-        (tempAcc[book.Author] = accumulator[book.Author] || []).push(book);
-        return tempAcc;
-      }, {});
-      reply(allBooksWRatingsGrpdByAuthor);
-    });
+    const allBooksNew = allBooks.map(book => ({
+      author: book.Author,
+      bookID: book.id,
+      name: book.Name,
+    }));
+
+    const allBooksWithRatingsPromise = getAllBooksWithRatings(allBooksNew);
+    allBooksWithRatingsPromise.then(allBooksWithRatings => new Promise(() => {
+      Models.books.destroy({ truncate: true });
+      Models.books.bulkCreate(allBooksWithRatings);
+    }).then(() => {
+      reply('Books Enterred!').code(201);
+    }));
   });
 };
 
@@ -45,7 +50,7 @@ const handler = (request, reply) => {
 // }];
 
 module.exports = {
-  path: '/ratings',
-  method: 'GET',
+  path: '/store',
+  method: 'POST',
   handler,
 };
