@@ -16,3 +16,17 @@ describe('Test server: ', () => {
   });
 });
 
+jest.setTimeout(50000);
+describe('Test server POST /store: ', () => {
+  test('should return statusCode 201: ', (done) => {
+    const options = {
+      url: 'localhost:8000/store',
+      method: 'POST',
+    };
+    Server.inject(options, (response) => {
+      expect(response.statusCode).toBe(200);
+      done();
+    });
+  });
+});
+

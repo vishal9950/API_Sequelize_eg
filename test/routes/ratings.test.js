@@ -1,5 +1,6 @@
 const Server = require('../../src/server');
 
+// jest.setTimeout(10000);
 describe('Test server for route GET /ratings: ', () => {
   test('Should return statusCode 200: ', (done) => {
     const options = {

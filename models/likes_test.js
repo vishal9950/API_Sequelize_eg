@@ -1,10 +1,8 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  var books_test = sequelize.define('books_test', {
-    author: DataTypes.STRING,
+  var likes_test = sequelize.define('likes_test', {
     bookID: DataTypes.INTEGER,
-    name: DataTypes.STRING,
-    rating: DataTypes.FLOAT
+    likeStatus: DataTypes.INTEGER
   }, {
     classMethods: {
       associate: function(models) {
@@ -12,5 +10,5 @@ module.exports = (sequelize, DataTypes) => {
       }
     }
   });
-  return books_test;
+  return likes_test;
 };

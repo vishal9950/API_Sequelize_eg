@@ -33,7 +33,7 @@ const handler = (request, reply) => {
         (tempAcc[book.Author] = accumulator[book.Author] || []).push(book);
         return tempAcc;
       }, {});
-      reply(allBooksWRatingsGrpdByAuthor);
+      reply(allBooksWRatingsGrpdByAuthor).code(200);
     });
   });
 };
