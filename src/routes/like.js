@@ -4,7 +4,8 @@ const handler = (request, reply) => {
   const bookID = Number(request.params.bookID);
   const likeStatus = Number(request.params.likeStatus);
   console.log(`likeStatus: ${likeStatus}`);
-
+  // Models.likes.destroy({ truncate: true });
+  // reply('deleted');
   Models.likes.upsert({
     id: bookID,
     bookID,
