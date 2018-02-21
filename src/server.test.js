@@ -21,6 +21,13 @@ describe('Test server: ', () => {
       done();
     });
   });
+
+  test('Should return the statusCode 200: ', (done) => {
+    Server.inject('/likes', (response) => {
+      expect(response.statusCode).toBe(200);
+      done();
+    });
+  });
 });
 
 // jest.setTimeout(50000);
