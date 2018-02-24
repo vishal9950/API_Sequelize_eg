@@ -1,53 +1,37 @@
 const rp = require('request-promise');
 const Models = require('../../models');
 
-const getHTTPReq = (url) => {
-  const promise = rp(url);
-  return promise;
-};
-
-const getAllBooksWithRatings = (allBooks) => {
-  const promiseArray = [];
-  for (let i = 0; i < allBooks.length; i += 1) {
-    const getRatingsAPI = 'https://5gj1qvkc5h.execute-api.us-east-1.amazonaws.com/dev/findBookById/';
-    const promise = getHTTPReq(`${getRatingsAPI}${allBooks[i].bookID}`);
-    promiseArray.push(promise);
-  }
-  return Promise.all(promiseArray).then((allRatings) => {
-    const allBooksWithRatings = allBooks;
-    for (let i = 0; i < allBooks.length; i += 1) {
-      allBooksWithRatings[i].rating = JSON.parse(allRatings[i]).rating;
-    }
-    return allBooksWithRatings;
-  });
-};
+const api1 = 'https://5gj1qvkc5h.execute-api.us-east-1.amazonaws.com/dev/allBooks';
+const api2 = 'https://5gj1qvkc5h.execute-api.us-east-1.amazonaws.com/dev/findBookById/';
 
 const handler = (request, reply) => {
-  const getBooksAPI = 'https://5gj1qvkc5h.execute-api.us-east-1.amazonaws.com/dev/allBooks';
-  getHTTPReq(getBooksAPI).then((value) => {
-    const allBooks = JSON.parse(value).books;
-    // const promiseArray = getRatings(allBooks);
-    const allBooksNew = allBooks.map(book => ({
-      author: book.Author,
-      bookID: book.id,
-      name: book.Name,
-    }));
-
-    const allBooksWithRatingsPromise = getAllBooksWithRatings(allBooksNew);
-    allBooksWithRatingsPromise.then(allBooksWithRatings => new Promise(() => {
+  rp(api1).then((data) => {
+    // console.log(data);
+    const allBooks = JSON.parse(data);
+    const arr = [];
+    for (let i = 0; i < allBooks.books.length; i += 1) {
+      const ratingsPromise = rp(`${api2}${allBooks.books[i].id}`);
+      arr.push(ratingsPromise);
+    }
+    Promise.all(arr).then((data1) => {
+      for (let i = 0; i < data1.length; i += 1) {
+        const rate = JSON.parse(data1[i]);
+        allBooks.books[i].rating = rate.rating;
+      }
+      const allBooksWithRatings = allBooks.books.map(book => ({
+        author: book.Author,
+        bookid: book.id,
+        name: book.Name,
+        rating: book.rating,
+      }));
+      console.log(allBooksWithRatings);
       Models.books.destroy({ truncate: true });
-      Models.books.bulkCreate(allBooksWithRatings);
-    }).then(() => {
-      reply('Books Enterred!').code(201);
-    }));
+      Models.books.bulkCreate(allBooksWithRatings).then(() => {
+        reply('Books enterred').code(201);
+      });
+    });
   });
 };
-
-// const routeOptions = () => [{
-//   path: '/ratings',
-//   method: 'GET',
-//   handler,
-// }];
 
 module.exports = {
   path: '/store',
