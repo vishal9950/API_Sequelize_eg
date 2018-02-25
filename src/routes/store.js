@@ -20,7 +20,7 @@ const handler = (request, reply) => {
       }
       const allBooksWithRatings = allBooks.books.map(book => ({
         author: book.Author,
-        bookid: book.id,
+        bookID: book.id,
         name: book.Name,
         rating: book.rating,
       }));
